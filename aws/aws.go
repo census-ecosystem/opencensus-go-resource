@@ -34,7 +34,7 @@ func DetectEC2Instance(context.Context) (*resource.Resource, error) {
 	}
 	return &resource.Resource{
 		Type: rkeys.AWSTypeEC2Instance,
-		Tags: map[string]string{
+		Labels: map[string]string{
 			rkeys.AWSKeyEC2Region:     doc.Region,
 			rkeys.AWSKeyEC2AccountID:  doc.AccountID,
 			rkeys.AWSKeyEC2InstanceID: doc.InstanceID,

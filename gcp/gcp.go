@@ -29,31 +29,31 @@ func DetectGCEInstance(context.Context) (*resource.Resource, error) {
 		return nil, nil
 	}
 	res := &resource.Resource{
-		Type: rkeys.GCPTypeGCEInstance,
-		Tags: map[string]string{},
+		Type:   rkeys.GCPTypeGCEInstance,
+		Labels: map[string]string{},
 	}
 	instanceID, err := metadata.InstanceID()
 	logError(err)
 	if instanceID != "" {
-		res.Tags[rkeys.GCPKeyGCEInstanceID] = instanceID
+		res.Labels[rkeys.GCPKeyGCEInstanceID] = instanceID
 	}
 
 	projectID, err := metadata.ProjectID()
 	logError(err)
 	if projectID != "" {
-		res.Tags[rkeys.GCPKeyGCEProjectID] = projectID
+		res.Labels[rkeys.GCPKeyGCEProjectID] = projectID
 	}
 
 	zone, err := metadata.Zone()
 	logError(err)
 	if zone != "" {
-		res.Tags[rkeys.GCPKeyGCEZone] = zone
+		res.Labels[rkeys.GCPKeyGCEZone] = zone
 	}
 
 	clusterName, err := metadata.InstanceAttributeValue("cluster-name")
 	logError(err)
 	if clusterName != "" {
-		res.Tags[rkeys.GCPKeyGCEClusterName] = strings.TrimSpace(clusterName)
+		res.Labels[rkeys.GCPKeyGCEClusterName] = strings.TrimSpace(clusterName)
 	}
 
 	return res, nil
