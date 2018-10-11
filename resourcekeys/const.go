@@ -19,6 +19,11 @@ package resourcekeys
 const (
 	K8STypeContainer = "k8s.io/container"
 
+	// A uniquely identifying name for the Kubernetes cluster. Kubernetes
+	// does not have cluster names as an internal concept so this may be
+	// set to any meaningful value within the environment. For example,
+	// GKE clusters have a name which can be used for this label.
+	K8SKeyClusterName   = "k8s.io/cluster/name"
 	K8SKeyNamespaceName = "k8s.io/namespace/name"
 	K8SKeyPodName       = "k8s.io/pod/name"
 	K8SKeyContainerName = "k8s.io/container/name"
@@ -41,6 +46,4 @@ const (
 	GCPKeyGCEProjectID  = "cloud.google.com/gce/project_id"
 	GCPKeyGCEZone       = "cloud.google.com/gce/zone"
 	GCPKeyGCEInstanceID = "cloud.google.com/gce/instance_id"
-	// Key for the node attribute that's automatically set with the GKE cluster name.
-	GCPKeyGCEClusterName = "cloud.google.com/gce/attributes/cluster_name"
 )

@@ -50,12 +50,6 @@ func DetectGCEInstance(context.Context) (*resource.Resource, error) {
 		res.Tags[resourcekeys.GCPKeyGCEZone] = zone
 	}
 
-	clusterName, err := metadata.InstanceAttributeValue("cluster-name")
-	logError(err)
-	if clusterName != "" {
-		res.Tags[resourcekeys.GCPKeyGCEClusterName] = strings.TrimSpace(clusterName)
-	}
-
 	return res, nil
 }
 
