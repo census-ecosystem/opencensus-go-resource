@@ -17,15 +17,10 @@ package aws
 import (
 	"context"
 
+	"contrib.go.opencensus.io/resource/resourcekeys"
 	"github.com/aws/aws-sdk-go/aws/ec2metadata"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"go.opencensus.io/resource"
-)
-
-const (
-	KeyAccountID  = "aws.com/account_id"
-	KeyRegion     = "aws.com/region"
-	KeyInstanceID = "aws.com/ec2/instance_id"
 )
 
 func DetectEC2Instance(context.Context) (*resource.Resource, error) {
@@ -38,11 +33,11 @@ func DetectEC2Instance(context.Context) (*resource.Resource, error) {
 		return nil, err
 	}
 	return &resource.Resource{
-		Type: "aws.com/ec2/instance",
+		Type: resourcekeys.AWSTypeEC2Instance,
 		Tags: map[string]string{
-			KeyRegion:     doc.Region,
-			KeyAccountID:  doc.AccountID,
-			KeyInstanceID: doc.InstanceID,
+			resourcekeys.AWSKeyEC2Region:     doc.Region,
+			resourcekeys.AWSKeyEC2AccountID:  doc.AccountID,
+			resourcekeys.AWSKeyEC2InstanceID: doc.InstanceID,
 		},
 	}, nil
 }

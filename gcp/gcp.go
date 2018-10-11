@@ -20,14 +20,8 @@ import (
 	"strings"
 
 	"cloud.google.com/go/compute/metadata"
+	"contrib.go.opencensus.io/resource/resourcekeys"
 	"go.opencensus.io/resource"
-)
-
-const (
-	KeyProjectID   = "cloud.google.com/project_id"
-	KeyZone        = "cloud.google.com/zone"
-	KeyInstanceID  = "cloud.google.com/gce/instance_id"
-	KeyClusterName = "cloud.google.com/gce/attributes/cluster_name"
 )
 
 func DetectGCEInstance(context.Context) (*resource.Resource, error) {
@@ -35,31 +29,25 @@ func DetectGCEInstance(context.Context) (*resource.Resource, error) {
 		return nil, nil
 	}
 	res := &resource.Resource{
-		Type: "cloud.google.com/gce/instance",
+		Type: resourcekeys.GCPTypeGCEInstance,
 		Tags: map[string]string{},
 	}
 	instanceID, err := metadata.InstanceID()
 	logError(err)
 	if instanceID != "" {
-		res.Tags[KeyInstanceID] = instanceID
+		res.Tags[resourcekeys.GCPKeyGCEInstanceID] = instanceID
 	}
 
 	projectID, err := metadata.ProjectID()
 	logError(err)
 	if projectID != "" {
-		res.Tags[KeyProjectID] = projectID
+		res.Tags[resourcekeys.GCPKeyGCEProjectID] = projectID
 	}
 
 	zone, err := metadata.Zone()
 	logError(err)
 	if zone != "" {
-		res.Tags[KeyZone] = zone
-	}
-
-	clusterName, err := metadata.InstanceAttributeValue("cluster-name")
-	logError(err)
-	if clusterName != "" {
-		res.Tags[KeyClusterName] = strings.TrimSpace(clusterName)
+		res.Tags[resourcekeys.GCPKeyGCEZone] = zone
 	}
 
 	return res, nil

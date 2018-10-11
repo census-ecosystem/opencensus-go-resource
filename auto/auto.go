@@ -24,9 +24,9 @@ import (
 
 // Detect sequentially runs resource detection from environment varibales, AWS, and GCP.
 func Detect(ctx context.Context) (*resource.Resource, error) {
-	return resource.DetectAll(ctx,
-		resource.FromEnvVars,
+	return resource.ChainedDetector(
+		resource.FromEnv,
 		gcp.DetectGCEInstance,
 		aws.DetectEC2Instance,
-	)
+	)(ctx)
 }
