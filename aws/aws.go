@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package aws
+package aws // import "contrib.go.opencensus.io/resource/aws"
 
 import (
 	"context"

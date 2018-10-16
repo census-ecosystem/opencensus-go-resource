@@ -13,7 +13,7 @@
 // limitations under the License.
 
 // Package resourcekeys contains well known type and label keys for resources.
-package resourcekeys
+package resourcekeys // import "contrib.go.opencensus.io/resource/resourcekeys"
 
 // Constants for Kubernetes resources.
 const (

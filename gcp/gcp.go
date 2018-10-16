@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package gcp
+package gcp // import "contrib.go.opencensus.io/resource/gcp"
 
 import (
 	"context"
