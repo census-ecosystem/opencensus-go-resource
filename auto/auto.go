@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package auto
+package auto // import "contrib.go.opencensus.io/resource/auto"
 
 import (
 	"context"
