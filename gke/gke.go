@@ -17,12 +17,13 @@ package gke // import "contrib.go.opencensus.io/resource/gke"
 import (
 	"context"
 	"log"
+	"os"
 	"strings"
 
 	"cloud.google.com/go/compute/metadata"
+	"contrib.go.opencensus.io/resource/gcp"
 	"go.opencensus.io/resource"
 	"go.opencensus.io/resource/resourcekeys"
-	"os"
 )
 
 // Detect detects associated resources when running in GKE environment.
@@ -57,43 +58,7 @@ func Detect(ctx context.Context) (*resource.Resource, error) {
 		return containerRes, nil
 	}
 
-	host := func(ctx context.Context) (*resource.Resource, error) {
-		hostRes := &resource.Resource{
-			Type:   resourcekeys.HostType,
-			Labels: map[string]string{},
-		}
-		instanceID, err := metadata.InstanceID()
-		logError(err)
-		if instanceID != "" {
-			hostRes.Labels[resourcekeys.HostKeyID] = instanceID
-		}
-		return hostRes, nil
-	}
-
-	cloud := func(ctx context.Context) (*resource.Resource, error) {
-		cloudRes := &resource.Resource{
-			Type:   resourcekeys.CloudType,
-			Labels: map[string]string{},
-		}
-
-		cloudRes.Labels[resourcekeys.CloudKeyProvider] = resourcekeys.CloudProviderGCP
-		projectID, err := metadata.ProjectID()
-		logError(err)
-		if projectID != "" {
-			cloudRes.Labels[resourcekeys.CloudKeyAccountID] = projectID
-		}
-
-		zone, err := metadata.Zone()
-		logError(err)
-		if zone != "" {
-			cloudRes.Labels[resourcekeys.CloudKeyZone] = zone
-		}
-
-		cloudRes.Labels[resourcekeys.CloudKeyRegion] = ""
-		return cloudRes, nil
-	}
-
-	return resource.MultiDetector(k8s, container, host, cloud)(ctx)
+	return resource.MultiDetector(k8s, container, gcp.Detect)(ctx)
 }
 
 // logError logs error only if the error is present and it is not 'not defined'
