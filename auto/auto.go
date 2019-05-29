@@ -19,6 +19,7 @@ import (
 
 	"contrib.go.opencensus.io/resource/aws"
 	"contrib.go.opencensus.io/resource/gcp"
+	"contrib.go.opencensus.io/resource/gke"
 	"go.opencensus.io/resource"
 )
 
@@ -26,7 +27,8 @@ import (
 func Detect(ctx context.Context) (*resource.Resource, error) {
 	return resource.MultiDetector(
 		resource.FromEnv,
-		gcp.DetectGCEInstance,
-		aws.DetectEC2Instance,
+		gke.Detect,
+		gcp.Detect,
+		aws.Detect,
 	)(ctx)
 }

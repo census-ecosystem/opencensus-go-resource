@@ -17,13 +17,14 @@ package aws // import "contrib.go.opencensus.io/resource/aws"
 import (
 	"context"
 
-	"contrib.go.opencensus.io/resource/resourcekeys"
 	"github.com/aws/aws-sdk-go/aws/ec2metadata"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"go.opencensus.io/resource"
+	"go.opencensus.io/resource/resourcekeys"
 )
 
-func DetectEC2Instance(context.Context) (*resource.Resource, error) {
+// Detect detects associated resources when running in AWS environment.
+func Detect(ctx context.Context) (*resource.Resource, error) {
 	c := ec2metadata.New(session.New())
 	if !c.Available() {
 		return nil, nil
@@ -32,12 +33,26 @@ func DetectEC2Instance(context.Context) (*resource.Resource, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &resource.Resource{
-		Type: resourcekeys.AWSTypeEC2Instance,
-		Labels: map[string]string{
-			resourcekeys.AWSKeyEC2Region:     doc.Region,
-			resourcekeys.AWSKeyEC2AccountID:  doc.AccountID,
-			resourcekeys.AWSKeyEC2InstanceID: doc.InstanceID,
-		},
-	}, nil
+
+	cloud := func(ctx context.Context) (*resource.Resource, error) {
+		cloudRes := &resource.Resource{
+			Type:   resourcekeys.CloudType,
+			Labels: map[string]string{},
+		}
+		cloudRes.Labels[resourcekeys.CloudKeyProvider] = resourcekeys.CloudProviderAWS
+		cloudRes.Labels[resourcekeys.CloudKeyRegion] = doc.Region
+		cloudRes.Labels[resourcekeys.CloudKeyAccountID] = doc.AccountID
+		return cloudRes, nil
+	}
+
+	host := func(ctx context.Context) (*resource.Resource, error) {
+		hostRes := &resource.Resource{
+			Type:   resourcekeys.HostType,
+			Labels: map[string]string{},
+		}
+		hostRes.Labels[resourcekeys.HostKeyID] = doc.InstanceID
+		return hostRes, nil
+	}
+
+	return resource.MultiDetector(cloud, host)(ctx)
 }

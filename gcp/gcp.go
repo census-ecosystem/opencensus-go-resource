@@ -20,37 +20,71 @@ import (
 	"strings"
 
 	"cloud.google.com/go/compute/metadata"
-	"contrib.go.opencensus.io/resource/resourcekeys"
 	"go.opencensus.io/resource"
+	"go.opencensus.io/resource/resourcekeys"
 )
 
-func DetectGCEInstance(context.Context) (*resource.Resource, error) {
+// Detect detects associated resources when running in GCP environment.
+func Detect(ctx context.Context) (*resource.Resource, error) {
 	if !metadata.OnGCE() {
 		return nil, nil
 	}
-	res := &resource.Resource{
-		Type:   resourcekeys.GCPTypeGCEInstance,
-		Labels: map[string]string{},
-	}
-	instanceID, err := metadata.InstanceID()
-	logError(err)
-	if instanceID != "" {
-		res.Labels[resourcekeys.GCPKeyGCEInstanceID] = instanceID
+	cloud := func(ctx context.Context) (*resource.Resource, error) {
+		cloudRes := &resource.Resource{
+			Type:   resourcekeys.CloudType,
+			Labels: map[string]string{},
+		}
+		cloudRes.Labels[resourcekeys.CloudKeyProvider] = resourcekeys.CloudProviderGCP
+		projectID, err := metadata.ProjectID()
+		logError(err)
+		if projectID != "" {
+			cloudRes.Labels[resourcekeys.CloudKeyAccountID] = projectID
+		}
+
+		zone, err := metadata.Zone()
+		logError(err)
+		if zone != "" {
+			cloudRes.Labels[resourcekeys.CloudKeyZone] = zone
+		}
+
+		cloudRes.Labels[resourcekeys.CloudKeyRegion] = ""
+		return cloudRes, nil
 	}
 
-	projectID, err := metadata.ProjectID()
-	logError(err)
-	if projectID != "" {
-		res.Labels[resourcekeys.GCPKeyGCEProjectID] = projectID
+	host := func(ctx context.Context) (*resource.Resource, error) {
+		hostRes := &resource.Resource{
+			Type:   resourcekeys.HostType,
+			Labels: map[string]string{},
+		}
+
+		instanceID, err := metadata.InstanceID()
+		logError(err)
+		if instanceID != "" {
+			hostRes.Labels[resourcekeys.HostKeyID] = instanceID
+		}
+
+		name, err := metadata.InstanceName()
+		logError(err)
+		if instanceID != "" {
+			hostRes.Labels[resourcekeys.HostKeyName] = name
+		}
+
+		hostname, err := metadata.Hostname()
+		logError(err)
+		if instanceID != "" {
+			hostRes.Labels[resourcekeys.HostKeyHostName] = hostname
+		}
+
+		hostType, err := metadata.InstanceAttributeValue("instance/machine-type")
+		logError(err)
+		if instanceID != "" {
+			hostRes.Labels[resourcekeys.HostKeyType] = hostType
+		}
+
+		return hostRes, nil
 	}
 
-	zone, err := metadata.Zone()
-	logError(err)
-	if zone != "" {
-		res.Labels[resourcekeys.GCPKeyGCEZone] = zone
-	}
-
-	return res, nil
+	return resource.MultiDetector(cloud, host)(ctx)
 }
 
 // logError logs error only if the error is present and it is not 'not defined'
