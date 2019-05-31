@@ -58,7 +58,7 @@ func Detect(ctx context.Context) (*resource.Resource, error) {
 		return containerRes, nil
 	}
 
-	return resource.MultiDetector(k8s, container, gcp.Detect)(ctx)
+	return resource.MultiDetector(container, k8s, gcp.Detect)(ctx)
 }
 
 // logError logs error only if the error is present and it is not 'not defined'
