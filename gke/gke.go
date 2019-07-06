@@ -38,7 +38,7 @@ func Detect(ctx context.Context) (*resource.Resource, error) {
 			Labels: map[string]string{},
 		}
 
-		clusterName, err := metadata.InstanceAttributeValue("instance/attributes/cluster-name")
+		clusterName, err := metadata.InstanceAttributeValue("cluster-name")
 		logError(err)
 		if clusterName != "" {
 			k8sRes.Labels[resourcekeys.K8SKeyClusterName] = clusterName
